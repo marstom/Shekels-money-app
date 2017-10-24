@@ -1,0 +1,7 @@
+pytest
+sqlalchemy
+flask
+httpie
+flask-wtf
+flask-login
+flask-debugtoolbar

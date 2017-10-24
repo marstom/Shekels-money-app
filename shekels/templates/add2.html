@@ -1,0 +1,14 @@
+{% extends "szablon.html" %}
+
+{% block title %}Add expense{% endblock %}
+
+{% block tresc %}
+<p>Add an expense</p>
+
+<form method="post">
+    <span>Name</span><input type="text" name="expense" /><br>
+    <span>Price</span><input type="text" name="price" /><br>
+    <button type="submit">Add</button>
+</form>
+
+{% endblock %}

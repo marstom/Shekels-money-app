@@ -1,0 +1,15 @@
+{% extends "szablon.html" %}
+
+{% block title %}Expense list{% endblock %}
+
+{% block tresc %}
+
+<h2>Lista wydatków:</h2>
+
+<ul class="list-group">
+{% for x in expenses %}
+    <li class="list-group-item">{{ x.name }} {{ x.price }}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

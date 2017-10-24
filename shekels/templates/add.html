@@ -1,0 +1,21 @@
+{% extends "szablon.html" %}
+
+{% block title %}Add expense{% endblock %}
+
+{% block tresc %}
+<p>Add an expense</p>
+
+<form method="post">
+    {{ form.csrf_token }}
+    <span>Name</span>{{ form.name(class_="form-control") }}<br>
+    {% if form.name.errors %}
+        {{ form.name.errors }}
+    {% endif %}
+    <span>Price</span>{{ form.price(class_="form-control") }}<br>
+    {% if form.price.errors %}
+        {{ form.price.errors }}
+    {% endif %}
+    <button type="submit" class="btn btn-secondary">Add</button>
+</form>
+
+{% endblock %}

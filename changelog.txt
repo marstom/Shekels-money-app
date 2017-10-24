@@ -1,0 +1,16 @@
+v0.1
+DONE:
+- commandline CLI,
+- web abb in flask,
+- register user,
+- login user,
+- add bootstrap to html,
+- add flask-wtf forms,
+- add flask-login,
+- add flask-debugtoolbar
+- add pytests!
+
+TODO:
+- add expenses categories,
+- Change description,
+- Add summary for each category

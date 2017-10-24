@@ -1,0 +1,23 @@
+{% extends "szablon.html" %}
+{% block title %}{{ super() }}Index{% endblock %}
+{% block tresc %}
+
+    {% include '_kitty.html' %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p><b>{{ message }}</b></p>
+            {% endfor %}
+
+        {% endif %}
+    {% endwith %}
+
+
+    {{ super() }}
+
+<h2>Shekels, aplikacja do śledzienia wydatków!</h2>
+<p class="lead">Aplikacja do śledzenia wydatków, aby
+korzystać, najpierw zarejestruj się.</p>
+
+{% endblock %}

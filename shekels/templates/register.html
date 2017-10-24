@@ -1,0 +1,30 @@
+{% extends "szablon.html" %}
+{% block title %}Register{% endblock %}
+{% block tresc %}
+
+<h2>Register ... </h2>
+
+<form method="post">
+    {{ form.csrf_token }}
+    <span>Name</span>{{ form.login }}<br>
+    <span>FullName</span>{{ form.full_name }}<br>
+    <span>Password</span>{{ form.password }}<br>
+    {% if form.password.errors %}
+    {{ form.password.errors }}
+    {% endif %}
+    <span>Password(retry)</span>{{ form.password2 }}<br>
+    <button type="submit">Register</button>
+</form>
+
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+{% endblock %}
