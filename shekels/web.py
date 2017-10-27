@@ -79,7 +79,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/hello')
+@app.route('/userlist')
 @login_required
 def user_list():
     query = session.query(User)
@@ -88,11 +88,10 @@ def user_list():
         query = query.filter(User.name.like(name))
 
     user_list = query.all()
-
     return render_template('user_list.html', users=user_list)
 
 
-@app.route('/list')
+@app.route('/expenselist')
 @login_required
 def list():
     expenses = session.query(Expense).all()
