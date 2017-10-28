@@ -27,6 +27,7 @@ class RegisterForm(FlaskForm):
 class ExpenseForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     price = IntegerField('price', validators=[DataRequired()])
+    # category =
 
     def validate(self):
         is_valid = super().validate()

@@ -1,3 +1,11 @@
+
+
+v0.2
+TODO:
+- add category field
+- add example cat to database
+- add
+
 v0.1
 DONE:
 - commandline CLI,

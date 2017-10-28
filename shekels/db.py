@@ -58,6 +58,14 @@ class Expense(Base):
 
     category_id = Column(Integer, ForeignKey('category.id'))
 
+class Note(Base):
+    __tablename__ = 'note'
+
+    id = Column(Integer, primary_key=True, nullable=True)
+    description = Column(String)
+    #notatka jest opcjonalna
+
+
 class Category(Base):
     '''
     Category can have many expenses. one to many
@@ -68,19 +76,7 @@ class Category(Base):
     name = Column(String)
     description = Column(String)
 
-    expenses = relationship('Expense')
-
-    note_id = Column(Integer, ForeignKey('note.id'))
-    note = relationship("Note", backref=backref("category", uselist=False))
-
-
-
-class Note(Base):
-    __tablename__ = 'note'
-
-    id = Column(Integer, primary_key=True)
-    description = Column(String)
-    #notatka jest opcjonalna
+    expenses = relationship('Expense', backref='expense')
 
 
 class Report(Base):
