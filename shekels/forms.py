@@ -25,10 +25,13 @@ class RegisterForm(FlaskForm):
 
 
 class ExpenseForm(FlaskForm):
-    _cat_choice=[('a','xbxx'),('a','bsss'),('aaaa','bss')] #teset only
+    cat_choice=[('a','xbxx'),('a','bsss'),('aaaa','bss')] #teset only
     name = StringField('name', validators=[DataRequired()])
     price = IntegerField('price', validators=[DataRequired()])
-    category = SelectField(label='Kategoria', choices=[('a','xbxx'),('a','bsss'),('aaaa','bss')])
+    category = SelectField(label='Kategoria', coerce=int)
+
+    def edit_category(self):
+        pass
 
     def validate(self):
         is_valid = super().validate()

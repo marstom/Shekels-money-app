@@ -167,6 +167,9 @@ def list():
 @login_required
 def add():
     form = ExpenseForm()
+    # form.category.choices=[('kategoria1','dupa')]
+    categories = [(cat.id, cat.name) for cat in db.session.query(Category).all()]
+    form.category.choices = categories
     if form.validate_on_submit():
         expense = Expense(
             name=form.name.data,
