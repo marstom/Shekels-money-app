@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, SelectField
 from wtforms.fields.html5 import IntegerField
 from wtforms.validators import DataRequired
 
@@ -25,9 +25,10 @@ class RegisterForm(FlaskForm):
 
 
 class ExpenseForm(FlaskForm):
+    _cat_choice=[('a','xbxx'),('a','bsss'),('aaaa','bss')] #teset only
     name = StringField('name', validators=[DataRequired()])
     price = IntegerField('price', validators=[DataRequired()])
-    # category =
+    category = SelectField(label='Kategoria', choices=[('a','xbxx'),('a','bsss'),('aaaa','bss')])
 
     def validate(self):
         is_valid = super().validate()

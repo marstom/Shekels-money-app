@@ -39,31 +39,30 @@ class User(Base, UserMixin):
     password = Column(String)
     avatar = Column(String) #TODO obrazek BASE64
 
+
+
+
     def __str__(self):
         return "User: {} {}".format(self.login,
                                     self.full_name)
 
 
 class Expense(Base):
+    '''
+    Each expense is related with user
+    '''
     __tablename__ = 'expense'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
     price = Column(Integer)
+    description = Column(String)
     date_time = Column(DateTime, default=datetime.datetime.utcnow)
-
-    note_id = Column(Integer, ForeignKey('note.id'))
-    note = relationship("Note", backref=backref("expense", uselist=False))
-
 
     category_id = Column(Integer, ForeignKey('category.id'))
 
-class Note(Base):
-    __tablename__ = 'note'
-
-    id = Column(Integer, primary_key=True, nullable=True)
-    description = Column(String)
-    #notatka jest opcjonalna
+    user_id = Column(Integer, ForeignKey('user.id'))
+    expense = relationship('User', backref='expenses')
 
 
 class Category(Base):
@@ -76,7 +75,7 @@ class Category(Base):
     name = Column(String)
     description = Column(String)
 
-    expenses = relationship('Expense', backref='expense')
+    expenses = relationship('Expense', backref='category')
 
 
 class Report(Base):

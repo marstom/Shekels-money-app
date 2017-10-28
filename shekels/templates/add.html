@@ -15,6 +15,7 @@
     {% if form.price.errors %}
         {{ form.price.errors }}
     {% endif %}
+    <span>Category</span>{{ form.category(class_="form-control") }}<br>
     <button type="submit" class="btn btn-secondary">Add</button>
 </form>
 
