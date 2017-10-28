@@ -7,4 +7,7 @@ flask-login
 flask-debugtoolbar
 flask-migrate
 flask-sqlalchemy
+flask-script
+# Wymagane dla postgresa
 pg8000
+passlib

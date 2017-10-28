@@ -1,43 +1,37 @@
 from urllib.parse import urlparse, urljoin
 
-import flask
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, \
+    redirect, url_for, flash, abort, session
 from flask_debugtoolbar import DebugToolbarExtension
-from flask_login import LoginManager, login_required, login_user, logout_user, UserMixin
+from flask_login import LoginManager, \
+    login_required, login_user, logout_user, UserMixin
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import exists
-from werkzeug.exceptions import abort
 
-#from shekels.db import DB, User, Expense
+from passlib.hash import pbkdf2_sha256
+
 from shekels.forms import ExpenseForm, LoginForm, RegisterForm
 
 import logging
 import shekels.logger
-
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 
 shekels.logger.setup()
 
 app = Flask(__name__)
 app.secret_key = 'fdsafhsdalkghsdahg'
 app.debug = True
-
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 toolbar = DebugToolbarExtension(app)
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-login_manager.login_message = "Zarejestruj się zanim użyjesz aplikacji!"
+login_manager.login_message = "Log in please!"
 
-#Sqlite only
-# db = DB('expenses.db')
-# db.create_db()
-# session = db.get_session()
+# SQLite database
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../expense2.db'
 
 # To change user or password change the postgres:postres part
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+pg8000://postgres:postgres@localhost/shekels'
@@ -47,7 +41,6 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
 
@@ -55,8 +48,9 @@ class User(db.Model, UserMixin):
     login = db.Column(db.String)
     full_name = db.Column(db.String)
     password = db.Column(db.String)
+    profile = db.Column(db.String, nullable=True)
 
-    # = db.relationship("Child", back_populates="parent")
+    # user = db.relationship("Child", back_populates="parent")
 
     def __str__(self):
         return "User: {} {}".format(self.login,
@@ -72,13 +66,13 @@ class Expense(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                         nullable=False)
-    user = db.relationship("User", backref="expenses")
+    # user = db.relationship("User", backref="expenses")
 
 
 
 
 
-logging.getLogger('werkzeug').setLevel(logging.ERROR) # w ten sposób wyciszyliśmy loggera werkzeug
+#logging.getLogger('werkzeug').setLevel(logging.ERROR) # w ten sposób wyciszyliśmy loggera werkzeug
 
 #wzięte ze snippetów
 def is_safe_url(target):
@@ -91,6 +85,7 @@ def is_safe_url(target):
 def load_user(id):
     return db.session.query(User).get(id)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -102,45 +97,42 @@ def login():
         except NoResultFound:
             flash(message='bad login')
         else:
-            if user.password == form.password.data:
+            if pbkdf2_sha256.verify(form.password.data, user.password):
                 login_user(user)
                 flash('Welcome {}!'.format(user.login))
-                logging.warning('Logged user {}'.format(user.login))
-
-                next = flask.request.args.get('next')
-                if not is_safe_url(next):
-                    return abort(400)
-
-                return redirect(next or url_for('index')) #dodać next
+                app.logger.log(10, 'Logged user {}'.format(user.login))
+                next = request.args.get('next')
+                return redirect(next or url_for('index'))
             else:
-                # app.logger.log(10, 'User wrong login or password user:{}, pass:{}'.format(form.login.data, form.password.data))
-                logging.warning('User wrong login or password user:{}, pass:{}'.format(form.login.data, form.password.data))
                 flash(message='bad login')
     return render_template('login.html', form=form)
 
 
 @app.route('/')
 def index():
-    app.logger.log(10, 'User logged to index page')
+    logging.info('hello')
     return render_template('index.html')
 
 
 @app.route('/userlist')
 @login_required
 def user_list():
+    logging.info('DUPA')
     query = db.session.query(User)
     if 'name' in request.args:
         name = '%{}%'.format(request.args['name'])
         query = query.filter(User.name.like(name))
 
     user_list = query.all()
+
     return render_template('user_list.html', users=user_list)
 
 
 @app.route('/expenselist')
 @login_required
 def list():
-    expenses = db.session.query(Expense).all()
+    user_id = session['user_id']
+    expenses = db.session.query(Expense).filter(Expense.user_id == user_id).all()
     return render_template('list.html',
                            expenses=expenses)
 
@@ -154,7 +146,7 @@ def add():
             name=form.name.data,
             price=form.price.data
         )
-        db.session = db.get_session()
+        expense.user_id = session['user_id']
         db.session.add(expense)
         db.session.commit()
         return redirect(url_for('index'))
@@ -166,36 +158,26 @@ def add():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        db.session = db.get_session()
-        exist = db.session.query(exists().where(User.login == form.login.data)).scalar()
-        if exist:
-            flash(message='Taki użytkownik już istnieje. Wpisz inną nazwę')
-            return render_template('register.html', form=form)
-        user = User(login=form.login.data, full_name=form.full_name.data, password=form.password.data)
+        secret = pbkdf2_sha256.hash(form.password.data)
+        user = User(
+            login=form.login.data,
+            full_name=form.full_name.data,
+            password=secret
+        )
         db.session.add(user)
         db.session.commit()
         flash('User registered {}! Please log in.'.format(user.login))
         return redirect(url_for('index'))
 
-    else:
-        # app.logger.log(10, 'User not register!!! Failed username:{} password:{}'.format(form.login.data, form.password.data))
-        logging.error('User not register!!! Failed username:{} password:{}'.format(form.login.data, form.password.data))
-        flash(message='Hasła są niezgodne! Wpisz jeszcz raz/')
-
     return render_template('register.html', form=form)
 
 
-@app.route('/logoout')
+@app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
-def main():
-    app.run(debug=True)
 
 if __name__ == '__main__':
-    main()
-
-
-
+    app.run(debug=True)
