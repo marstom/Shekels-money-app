@@ -221,17 +221,16 @@ def logout():
 
 @app.route('/editcategories', methods=['GET', 'POST'])
 def edit_categories():
-    if request.method == 'POST':
-        form = EditCategoryForm()
-        category = Category(
-            name=form.name.data,
-            description=form.description.data,
-            user_id=session['user_id'],
-        )
-        if request.form['btn'] == 'add_category':
-            db.session.add(category)
-            db.session.commit()
+    form = EditCategoryForm()
+    category = Category(
+        name=form.name.data,
+        description=form.description.data,
+        user_id=session['user_id'],
+    )
+    db.session.add(category)
+    db.session.commit()
 
+    if request.method == 'POST':
         if request.form['btn'] == 'delete_category':
             category_id = request.form['category']
             print(category_id)
