@@ -176,12 +176,7 @@ def add():
     # form.category.choices=[('kategoria1','dupa')]
     form.category.data = 1
 
-    #filter only this categorys
-    #query = db.session.query(Category).filter(Expense.category_id == form.category.data and Expense.user_id == session['user_id']).all()
-    #query = db.session.query(Category).filter(Expense.user_id == session['user_id']).all()
-    #categories = [(cat.id, cat.name) for cat in query]
-
-    categories = [(cat.id, cat.name) for cat in db.session.query(Category).filter(Category.user_id == session['user_id']).all()]
+    categories = [(cat.id, cat.name) for cat in db.session.query(Category).filter(Category.user_id == session['user_id']).all()] #has bug, why
     # categories = [(cat.id, cat.name) for cat in db.session.query(Category).all()]
     print(form.category.data)
     form.category.choices = categories
@@ -226,15 +221,27 @@ def logout():
 
 @app.route('/editcategories', methods=['GET', 'POST'])
 def edit_categories():
-    form = EditCategoryForm()
-    category = Category(
-        name=form.name.data,
-        description=form.description.data,
-        user_id=session['user_id'],
-    )
-    db.session.add(category)
-    db.session.commit()
-    return render_template('edit_categories.html', form=form)
+    if request.method == 'POST':
+        form = EditCategoryForm()
+        category = Category(
+            name=form.name.data,
+            description=form.description.data,
+            user_id=session['user_id'],
+        )
+        if request.form['btn'] == 'add_category':
+            db.session.add(category)
+            db.session.commit()
+
+        if request.form['btn'] == 'delete_category':
+            category_id = request.form['category']
+            print(category_id)
+            query = db.session.query(Category).filter(Category.id == category_id).delete()
+            db.session.commit()
+            print(request.form)
+
+    categories = db.session.query(Category).filter(Category.user_id == session['user_id'])
+
+    return render_template('edit_categories.html', form=form, categories=categories)
 
 @app.route("/testpage")
 def testpage():

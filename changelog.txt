@@ -3,11 +3,10 @@
 v0.2
 TODO:
 -categories table
--expenses pretty table
++expenses pretty table
     +category
     +date
     +description
-    -dropdown (HTML)
 
 DONE:
 + add category field to add,

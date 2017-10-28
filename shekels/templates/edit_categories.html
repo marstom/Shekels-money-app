@@ -11,8 +11,18 @@
     <span>Name</span>{{ form.name(class_="form-control") }}<br>
     <span>Description</span>{{ form.description(class_="form-control") }}<br>
 
-    <button type="submit", class="btn btn-secondary">Add</button>
+    <button type="submit" class="btn btn-secondary" name="btn" value="add_category">Add</button>
 
+    {% for el in categories %}
+    <p>{{ el.name }} id={{ el.id }}
+    <input type="radio" name="category" value={{ el.id }}>
+    </p>
+    {% endfor %}
+    <button type="submit" name="btn" value="delete_category">asdf</button>
 </form>
+
+
+
+
 
 {% endblock %}
