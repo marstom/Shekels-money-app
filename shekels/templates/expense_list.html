@@ -1,0 +1,48 @@
+{% extends "szablon.html" %}
+
+{% block title %}Expense list{% endblock %}
+
+{% block tresc %}
+
+<h2>Lista wydatków:</h2>
+
+<!--
+<ul class="list-group">
+{% for exp in expenses %}
+    <li class="list-group-item">{{ exp.name }} {{ exp.price }} {{ exp.description }} {{ exp.date_time }} {{ exp.cat.name }} </li>
+{% endfor %}
+</ul>
+-->
+
+
+<!-- tabelka -->
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Description</th>
+      <th scope="col">Price</th>
+        <th scope="col">Category</th>
+        <th scope="col">Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for exp in expenses %}
+  <tr>
+      <th scope="row">{{ exp.id }}</th>
+      <td>{{ exp.name }}</td>
+      <td>{{ exp.description }}</td>
+      <td>{{ exp.price }}</td>
+         <td>{{ exp.cat.name }}</td>
+         <td>{{ exp.date_time }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h3> SUMMARY: {{ suma_wydatkow }}</h3>
+
+
+
+{% endblock %}

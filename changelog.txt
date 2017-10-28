@@ -2,10 +2,18 @@
 
 v0.2
 TODO:
-- add category field,
-- add example cat to database,
-- expense, should be floating type,
--
+-categories table
+-expenses pretty table
+    +category
+    +date
+    +description
+    -dropdown (HTML)
+
+DONE:
++ add category field to add,
++ add example cat to database,
+-+ expense, should be floating type, recreate db
++ add category
 
 v0.1
 DONE:
@@ -20,6 +28,5 @@ DONE:
 - add pytests!
 
 TODO:
-- add expenses categories,
 - Change description,
 - Add summary for each category

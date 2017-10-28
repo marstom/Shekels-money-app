@@ -12,7 +12,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from passlib.hash import pbkdf2_sha256
 
-from shekels.forms import ExpenseForm, LoginForm, RegisterForm
+from shekels.forms import ExpenseForm, LoginForm, RegisterForm, EditCategoryForm
 
 import logging
 import shekels.logger
@@ -62,15 +62,15 @@ class Expense(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    price = db.Column(db.Integer)
+    price = db.Column(db.Float)
     description = db.Column(db.String)
     date_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    expense = db.relationship('User', backref='expenses')
-
+    user = db.relationship('User', backref='expenses')
+    cat=db.relationship('Category', backref='expense')
 
 class Category(db.Model):
     '''
@@ -157,14 +157,19 @@ def user_list():
 
 @app.route('/expenselist')
 @login_required
-def list():
+def expense_list():
     user_id = session['user_id']
     expenses = db.session.query(Expense).filter(Expense.user_id == user_id).all()
-    return render_template('list.html',
-                           expenses=expenses)
+    exp_user = db.session.query(Expense).filter(User.id == session['user_id']).all() #for summary
+    suma=0
+    for el in exp_user:
+        suma+=el.price
+    return render_template('expense_list.html',
+                           expenses=expenses,
+                           suma_wydatkow=suma)
 
 
-@app.route('/add', methods=['GET', 'POST'])
+@app.route('/addexpense', methods=['GET', 'POST'])
 @login_required
 def add():
     form = ExpenseForm()
@@ -192,7 +197,7 @@ def add():
         db.session.commit()
         return redirect(url_for('index'))
 
-    return render_template('add.html', form=form)
+    return render_template('add_expense.html', form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -218,6 +223,18 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/editcategories', methods=['GET', 'POST'])
+def edit_categories():
+    form = EditCategoryForm()
+    category = Category(
+        name=form.name.data,
+        description=form.description.data,
+        user_id=session['user_id'],
+    )
+    db.session.add(category)
+    db.session.commit()
+    return render_template('edit_categories.html', form=form)
 
 @app.route("/testpage")
 def testpage():

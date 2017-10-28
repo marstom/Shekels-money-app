@@ -1,0 +1,18 @@
+{% extends "szablon.html" %}
+
+{% block title %}Expense list{% endblock %}
+
+{% block tresc %}
+
+<p>Edycja kategorii ...</p>
+
+<form method="post">
+    {{ form.csrf_token }}
+    <span>Name</span>{{ form.name(class_="form-control") }}<br>
+    <span>Description</span>{{ form.description(class_="form-control") }}<br>
+
+    <button type="submit", class="btn btn-secondary">Add</button>
+
+</form>
+
+{% endblock %}
