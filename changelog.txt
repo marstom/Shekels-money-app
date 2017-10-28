@@ -2,9 +2,10 @@
 
 v0.2
 TODO:
-- add category field
-- add example cat to database
-- add
+- add category field,
+- add example cat to database,
+- expense, should be floating type,
+-
 
 v0.1
 DONE:

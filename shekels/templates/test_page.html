@@ -1,0 +1,22 @@
+{% extends "szablon.html" %}
+
+{% block title %}User list{% endblock %}
+
+{% block tresc %}
+
+<p>To jest strona testowa .... . . . . . ... </p>
+
+{{ session }}
+
+<br>
+<br>
+{{ categ }}
+<br>
+{% for item in items %}
+{{ item.name }} {{ item.price }}
+{% endfor %}
+
+
+{{ items }}
+
+{% endblock %}

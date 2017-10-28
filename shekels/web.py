@@ -81,6 +81,7 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     expenses = db.relationship('Expense', backref='category')
 
@@ -168,14 +169,25 @@ def list():
 def add():
     form = ExpenseForm()
     # form.category.choices=[('kategoria1','dupa')]
-    categories = [(cat.id, cat.name) for cat in db.session.query(Category).all()]
+    form.category.data = 1
+
+    #filter only this categorys
+    #query = db.session.query(Category).filter(Expense.category_id == form.category.data and Expense.user_id == session['user_id']).all()
+    #query = db.session.query(Category).filter(Expense.user_id == session['user_id']).all()
+    #categories = [(cat.id, cat.name) for cat in query]
+
+    categories = [(cat.id, cat.name) for cat in db.session.query(Category).filter(Category.user_id == session['user_id']).all()]
+    # categories = [(cat.id, cat.name) for cat in db.session.query(Category).all()]
+    print(form.category.data)
     form.category.choices = categories
     if form.validate_on_submit():
         expense = Expense(
             name=form.name.data,
-            price=form.price.data
+            price=form.price.data,
+            category_id=int(form.category.data),
+            user_id = session['user_id'],
         )
-        expense.user_id = session['user_id']
+        # expense.user_id = session['user_id']
         db.session.add(expense)
         db.session.commit()
         return redirect(url_for('index'))
@@ -207,6 +219,15 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route("/testpage")
+def testpage():
+    categ = db.session.query(Category.expenses).all()
+    #filter only items that belongs to cat 1
+    items = db.session.query(Expense).filter(Expense.category_id == 1 and Expense.user_id == 1).all()
+    # logging.warning('to.... {}'.format(items))
+    asdf = session
+    return render_template('test_page.html', categ=categ, items=items)
 
 if __name__ == '__main__':
     app.run(debug=True)
+

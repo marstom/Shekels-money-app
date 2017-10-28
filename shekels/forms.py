@@ -36,8 +36,8 @@ class ExpenseForm(FlaskForm):
     def validate(self):
         is_valid = super().validate()
 
-        if self.price.data and self.price.data < 10:
-            self.price.errors.append('powyzej 10 musi byc!!!')
-            return False
+        # if self.price.data and self.price.data < 10:
+        #     self.price.errors.append('powyzej 10 musi byc!!!')
+        #     return False
 
         return is_valid
