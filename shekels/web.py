@@ -3,22 +3,29 @@ from urllib.parse import urlparse, urljoin
 import flask
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, login_required, login_user, logout_user, UserMixin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import exists
 from werkzeug.exceptions import abort
 
-from shekels.db import DB, User, Expense
+#from shekels.db import DB, User, Expense
 from shekels.forms import ExpenseForm, LoginForm, RegisterForm
 
 import logging
 import shekels.logger
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
 shekels.logger.setup()
 
 app = Flask(__name__)
 app.secret_key = 'fdsafhsdalkghsdahg'
 app.debug = True
+
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 toolbar = DebugToolbarExtension(app)
 
@@ -27,9 +34,48 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message = "Zarejestruj się zanim użyjesz aplikacji!"
 
-db = DB('expenses.db')
-db.create_db()
-session = db.get_session()
+#Sqlite only
+# db = DB('expenses.db')
+# db.create_db()
+# session = db.get_session()
+
+# To change user or password change the postgres:postres part
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+pg8000://postgres:postgres@localhost/shekels'
+
+db = SQLAlchemy(app)
+
+migrate = Migrate(app, db)
+
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+
+    id = db.Column(db.Integer, primary_key=True)
+    login = db.Column(db.String)
+    full_name = db.Column(db.String)
+    password = db.Column(db.String)
+
+    # = db.relationship("Child", back_populates="parent")
+
+    def __str__(self):
+        return "User: {} {}".format(self.login,
+                                    self.full_name)
+
+
+class Expense(db.Model):
+    __tablename__ = 'expense'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    price = db.Column(db.Integer)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+                        nullable=False)
+    user = db.relationship("User", backref="expenses")
+
+
+
 
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR) # w ten sposób wyciszyliśmy loggera werkzeug
@@ -43,14 +89,14 @@ def is_safe_url(target):
 
 @login_manager.user_loader
 def load_user(id):
-    return session.query(User).get(id)
+    return db.session.query(User).get(id)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         try:
-            user = session.query(User).filter(
+            user = db.session.query(User).filter(
                 User.login == form.login.data
             ).one()
         except NoResultFound:
@@ -82,7 +128,7 @@ def index():
 @app.route('/userlist')
 @login_required
 def user_list():
-    query = session.query(User)
+    query = db.session.query(User)
     if 'name' in request.args:
         name = '%{}%'.format(request.args['name'])
         query = query.filter(User.name.like(name))
@@ -94,7 +140,7 @@ def user_list():
 @app.route('/expenselist')
 @login_required
 def list():
-    expenses = session.query(Expense).all()
+    expenses = db.session.query(Expense).all()
     return render_template('list.html',
                            expenses=expenses)
 
@@ -108,9 +154,9 @@ def add():
             name=form.name.data,
             price=form.price.data
         )
-        session = db.get_session()
-        session.add(expense)
-        session.commit()
+        db.session = db.get_session()
+        db.session.add(expense)
+        db.session.commit()
         return redirect(url_for('index'))
 
     return render_template('add.html', form=form)
@@ -120,14 +166,14 @@ def add():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        session = db.get_session()
-        exist = session.query(exists().where(User.login == form.login.data)).scalar()
+        db.session = db.get_session()
+        exist = db.session.query(exists().where(User.login == form.login.data)).scalar()
         if exist:
             flash(message='Taki użytkownik już istnieje. Wpisz inną nazwę')
             return render_template('register.html', form=form)
         user = User(login=form.login.data, full_name=form.full_name.data, password=form.password.data)
-        session.add(user)
-        session.commit()
+        db.session.add(user)
+        db.session.commit()
         flash('User registered {}! Please log in.'.format(user.login))
         return redirect(url_for('index'))
 

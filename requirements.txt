@@ -7,3 +7,4 @@ flask-login
 flask-debugtoolbar
 flask-migrate
 flask-sqlalchemy
+pg8000
