@@ -35,7 +35,7 @@ login_manager.login_message = "Log in please!"
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../expense2.db'
 
 # To change user or password change the postgres:postres part
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+pg8000://postgres:postgres@localhost/shekels'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+pg8000://marstom_shekels:marstom_shekels@188.40.77.144/marstom_shekels'
 
 db = SQLAlchemy(app)
 
