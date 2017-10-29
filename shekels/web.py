@@ -41,6 +41,7 @@ db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
+
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
 
@@ -173,24 +174,22 @@ def expense_list():
 @login_required
 def add():
     form = ExpenseForm()
-    # form.category.choices=[('kategoria1','dupa')]
-    form.category.data = 1
-
-    categories = [(cat.id, cat.name) for cat in db.session.query(Category).filter(Category.user_id == session['user_id']).all()] #has bug, why
-    # categories = [(cat.id, cat.name) for cat in db.session.query(Category).all()]
-    print(form.category.data)
+    categories = [(cat.id, cat.name) for cat in db.session.query(Category).filter(Category.user_id == session['user_id']).all()]
     form.category.choices = categories
-    if form.validate_on_submit():
+    vak = form.validate()
+    if request.method == 'POST' and form.validate():
         expense = Expense(
             name=form.name.data,
             price=form.price.data,
-            category_id=int(form.category.data),
+            category_id=int(form.category.data), #data?
             user_id = session['user_id'],
         )
         # expense.user_id = session['user_id']
+        logging.warning('user id {} catuserid {}'.format(session['user_id'], expense.category_id))
         db.session.add(expense)
         db.session.commit()
         return redirect(url_for('index'))
+    flash(form.errors)
 
     return render_template('add_expense.html', form=form)
 
