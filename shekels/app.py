@@ -15,10 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://marstom_shekels:m
 #app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Log in please!"
+
 
 #toolbar = DebugToolbarExtension(app)
 

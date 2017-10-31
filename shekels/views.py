@@ -1,14 +1,19 @@
 from urllib.parse import urlparse, urljoin
 from flask import render_template, request, redirect, url_for, flash, session
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, LoginManager
 from sqlalchemy.orm.exc import NoResultFound
 from passlib.hash import pbkdf2_sha256
 
-from shekels.app import app, login_manager
+from shekels.app import app
 from shekels.forms import ExpenseForm, LoginForm, RegisterForm, EditCategoryForm
 from shekels.models import User, Category, Expense, db
 
 import logging
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+login_manager.login_message = "Log in please!"
 
 
 def is_safe_url(target):
