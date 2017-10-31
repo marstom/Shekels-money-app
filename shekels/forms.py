@@ -1,6 +1,5 @@
-from flask_wtf import FlaskForm, validators
-from wtforms import StringField, PasswordField, SelectField, DecimalField, FloatField
-from wtforms.fields.html5 import IntegerField
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SelectField, FloatField
 from wtforms.validators import DataRequired
 
 
@@ -35,11 +34,6 @@ class ExpenseForm(FlaskForm):
 
     def validate(self):
         is_valid = super().validate()
-
-        # if self.price.data and self.price.data < 10:
-        #     self.price.errors.append('powyzej 10 musi byc!!!')
-        #     return False
-
         return is_valid
 
 class EditCategoryForm(FlaskForm):

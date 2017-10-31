@@ -3,7 +3,7 @@ from flask_script import Manager
 
 
 # from shekels.db import User
-from shekels.web import app, db, User, Expense
+from shekels.views import app, db, User, Expense
 
 manager = Manager(app)
 migrate = Migrate(app, db)

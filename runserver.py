@@ -1,2 +1,3 @@
-from shekels.web import *
-main()
+from shekels.app import app
+
+app.run()
