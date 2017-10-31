@@ -5,4 +5,4 @@ def setup():
         level=logging.DEBUG,
         format='%(asctime)s %(name)s %(levelname)s %(message)s'
     )
-    logging.getLogger('werkzeug').setLevel(logging.WARNING)
+    logging.getLogger('werkzeug').setLevel(logging.INFO)

@@ -161,9 +161,9 @@ def user_list():
 def expense_list():
     user_id = session['user_id']
     expenses = db.session.query(Expense).filter(Expense.user_id == user_id).all()
-    exp_user = db.session.query(Expense).filter(User.id == session['user_id']).all() #for summary
     suma=0
-    for el in exp_user:
+    for el in expenses:
+        logging.info('price = {} {}'.format(el.price, el.user_id))
         suma+=el.price
     return render_template('expense_list.html',
                            expenses=expenses,
@@ -181,6 +181,7 @@ def add():
         expense = Expense(
             name=form.name.data,
             price=form.price.data,
+            description=form.description.data,
             category_id=int(form.category.data), #data?
             user_id = session['user_id'],
         )

@@ -27,6 +27,7 @@ class RegisterForm(FlaskForm):
 class ExpenseForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     price = FloatField('price', validators=[DataRequired()])
+    description = StringField('description')
     category = SelectField(label='Kategoria', coerce=int, validators=[DataRequired()])
 
     def edit_category(self):
